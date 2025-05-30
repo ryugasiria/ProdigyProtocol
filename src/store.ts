@@ -1,6 +1,19 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Achievement, Domain, Quest, Rank, Skill, UserProfile } from './types';
+import {
+  Achievement,
+  Domain,
+  Quest,
+  Rank,
+  Skill,
+  UserProfile,
+  PersonalProfile,
+  HealthMetrics,
+  ProfessionalGoals,
+  LearningPreferences,
+  AccountabilitySettings,
+  CommunicationPreferences
+} from './types';
 
 interface ProdigyState {
   user: UserProfile;
@@ -11,6 +24,12 @@ interface ProdigyState {
   
   // Actions
   updateUser: (user: Partial<UserProfile>) => void;
+  updatePersonalProfile: (profile: PersonalProfile) => void;
+  updateHealthMetrics: (metrics: HealthMetrics) => void;
+  updateProfessionalGoals: (goals: ProfessionalGoals) => void;
+  updateLearningPreferences: (prefs: LearningPreferences) => void;
+  updateAccountabilitySettings: (settings: AccountabilitySettings) => void;
+  updateCommunicationPreferences: (prefs: CommunicationPreferences) => void;
   addSkill: (skill: Skill) => void;
   updateSkill: (id: string, updates: Partial<Skill>) => void;
   addXp: (skillId: string, amount: number) => void;
@@ -18,6 +37,7 @@ interface ProdigyState {
   completeQuest: (id: string) => void;
   unlockAchievement: (id: string) => void;
   calculateRank: (domain: Domain) => Rank;
+  addProgressEntry: (metrics: Record<string, number>, notes: string) => void;
 }
 
 const calculateRankFromXp = (xp: number): Rank => {
@@ -42,6 +62,7 @@ export const useProdigyStore = create<ProdigyState>()(
         joinDate: new Date(),
         streak: 0,
         lastActive: new Date(),
+        progressHistory: [],
       },
       skills: [],
       quests: [],
@@ -56,6 +77,51 @@ export const useProdigyStore = create<ProdigyState>()(
       updateUser: (updates) => 
         set((state) => ({
           user: { ...state.user, ...updates }
+        })),
+
+      updatePersonalProfile: (profile) =>
+        set((state) => ({
+          user: { ...state.user, personalProfile: profile }
+        })),
+
+      updateHealthMetrics: (metrics) =>
+        set((state) => ({
+          user: { ...state.user, healthMetrics: metrics }
+        })),
+
+      updateProfessionalGoals: (goals) =>
+        set((state) => ({
+          user: { ...state.user, professionalGoals: goals }
+        })),
+
+      updateLearningPreferences: (prefs) =>
+        set((state) => ({
+          user: { ...state.user, learningPreferences: prefs }
+        })),
+
+      updateAccountabilitySettings: (settings) =>
+        set((state) => ({
+          user: { ...state.user, accountabilitySettings: settings }
+        })),
+
+      updateCommunicationPreferences: (prefs) =>
+        set((state) => ({
+          user: { ...state.user, communicationPreferences: prefs }
+        })),
+
+      addProgressEntry: (metrics, notes) =>
+        set((state) => ({
+          user: {
+            ...state.user,
+            progressHistory: [
+              ...state.user.progressHistory,
+              {
+                date: new Date(),
+                metrics,
+                notes
+              }
+            ]
+          }
         })),
 
       addSkill: (skill) => 
@@ -82,13 +148,28 @@ export const useProdigyStore = create<ProdigyState>()(
         const newLevel = skill.level + levelUps;
         const newXpToNextLevel = skill.xpToNextLevel * (levelUps > 0 ? 1.5 : 1);
         
+        // Update skill metrics
+        const updatedMetrics = {
+          ...skill.metrics,
+          lastUpdated: new Date(),
+          progressHistory: [
+            ...(skill.metrics?.progressHistory || []),
+            {
+              date: new Date(),
+              value: newXp,
+              notes: `Gained ${amount} XP`
+            }
+          ]
+        };
+        
         state.updateSkill(skillId, {
           xp: remainingXp,
           level: newLevel,
-          xpToNextLevel: newXpToNextLevel
+          xpToNextLevel: newXpToNextLevel,
+          metrics: updatedMetrics
         });
         
-        // Update total XP
+        // Update total XP and user rank
         state.updateUser({ 
           totalXp: state.user.totalXp + amount,
           rank: calculateRankFromXp(state.user.totalXp + amount)
@@ -110,7 +191,14 @@ export const useProdigyStore = create<ProdigyState>()(
 
       addQuest: (quest) => 
         set((state) => ({
-          quests: [...state.quests, quest]
+          quests: [...state.quests, {
+            ...quest,
+            metrics: {
+              startDate: new Date(),
+              checkpoints: [],
+              consequences: quest.metrics?.consequences
+            }
+          }]
         })),
 
       completeQuest: (id) => {
@@ -122,7 +210,21 @@ export const useProdigyStore = create<ProdigyState>()(
         // Mark quest as completed
         set((state) => ({
           quests: state.quests.map(q => 
-            q.id === id ? { ...q, completed: true } : q
+            q.id === id ? {
+              ...q,
+              completed: true,
+              metrics: {
+                ...q.metrics,
+                checkpoints: [
+                  ...(q.metrics?.checkpoints || []),
+                  {
+                    date: new Date(),
+                    description: 'Quest completed',
+                    completed: true
+                  }
+                ]
+              }
+            } : q
           )
         }));
         
