@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Quests from './pages/Quests';
 import DomainView from './pages/DomainView';
+import ProfessionalDevelopment from './pages/ProfessionalDevelopment';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/quests" element={<Quests />} />
         <Route path="/domain/:domain" element={<DomainView />} />
+        <Route path="/professional" element={<ProfessionalDevelopment />} />
         <Route path="*" element={<Navigate to="/\" replace />} />
       </Routes>
     </Router>
