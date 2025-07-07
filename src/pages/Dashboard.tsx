@@ -157,7 +157,7 @@ const Dashboard: React.FC = () => {
               <ProgressBar 
                 current={user.totalXp} 
                 max={xpForNextRank} 
-                showText={false}
+                Last active: {user.lastActive ? new Date(user.lastActive).toLocaleDateString() : 'Never'}
               />
             </div>
           </div>

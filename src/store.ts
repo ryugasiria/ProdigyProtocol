@@ -15,6 +15,7 @@ import {
   CommunicationPreferences
 } from './types';
 
+// Utility function to safely calculate rank
 interface ProdigyState {
   user: UserProfile;
   skills: Skill[];
@@ -38,9 +39,12 @@ interface ProdigyState {
   unlockAchievement: (id: string) => void;
   calculateRank: (domain: Domain) => Rank;
   addProgressEntry: (metrics: Record<string, number>, notes: string) => void;
+  removeSkill: (id: string) => void;
+  removeQuest: (id: string) => void;
 }
 
 const calculateRankFromXp = (xp: number): Rank => {
+  if (typeof xp !== 'number' || isNaN(xp) || xp < 0) return 'E';
   if (xp >= 10000) return 'SSS';
   if (xp >= 7500) return 'SS';
   if (xp >= 5000) return 'S';
@@ -51,6 +55,17 @@ const calculateRankFromXp = (xp: number): Rank => {
   return 'E';
 };
 
+// Utility function to safely calculate level progression
+const calculateLevelProgression = (currentXp: number, currentLevel: number, xpToNext: number) => {
+  if (typeof currentXp !== 'number' || currentXp < 0) return { level: currentLevel, remainingXp: 0, newXpToNext: xpToNext };
+  
+  const levelUps = Math.floor(currentXp / xpToNext);
+  const remainingXp = currentXp % xpToNext;
+  const newLevel = currentLevel + levelUps;
+  const newXpToNext = Math.floor(xpToNext * Math.pow(1.2, levelUps)); // More balanced progression
+  
+  return { level: newLevel, remainingXp, newXpToNext };
+};
 export const useProdigyStore = create<ProdigyState>()(
   persist(
     (set, get) => ({
@@ -137,48 +152,55 @@ export const useProdigyStore = create<ProdigyState>()(
         })),
 
       addXp: (skillId, amount) => {
+        if (typeof amount !== 'number' || amount <= 0) return;
+        
         const state = get();
         const skill = state.skills.find(s => s.id === skillId);
         
         if (!skill) return;
         
-        const newXp = skill.xp + amount;
-        const levelUps = Math.floor(newXp / skill.xpToNextLevel);
-        const remainingXp = newXp % skill.xpToNextLevel;
-        const newLevel = skill.level + levelUps;
-        const newXpToNextLevel = skill.xpToNextLevel * (levelUps > 0 ? 1.5 : 1);
+        const { level: newLevel, remainingXp, newXpToNext } = calculateLevelProgression(
+          skill.xp + amount,
+          skill.level,
+          skill.xpToNextLevel
+        );
         
         // Update skill metrics
         const updatedMetrics = {
-          ...skill.metrics,
+          startDate: skill.metrics?.startDate || new Date(),
           lastUpdated: new Date(),
           progressHistory: [
             ...(skill.metrics?.progressHistory || []),
             {
               date: new Date(),
-              value: newXp,
+              value: skill.xp + amount,
               notes: `Gained ${amount} XP`
             }
-          ]
+          ],
+          relatedQuests: skill.metrics?.relatedQuests || []
         };
         
         state.updateSkill(skillId, {
           xp: remainingXp,
           level: newLevel,
-          xpToNextLevel: newXpToNextLevel,
+          xpToNextLevel: newXpToNext,
           metrics: updatedMetrics
         });
         
         // Update total XP and user rank
+        const newTotalXp = state.user.totalXp + amount;
         state.updateUser({ 
-          totalXp: state.user.totalXp + amount,
-          rank: calculateRankFromXp(state.user.totalXp + amount)
+          totalXp: newTotalXp,
+          rank: calculateRankFromXp(newTotalXp)
         });
         
         // Recalculate domain ranks
         const domain = skill.domain;
-        const domainSkills = state.skills.filter(s => s.domain === domain);
-        const domainXp = domainSkills.reduce((sum, s) => sum + s.xp, 0);
+        const updatedSkills = state.skills.map(s => 
+          s.id === skillId ? { ...s, xp: remainingXp, level: newLevel } : s
+        );
+        const domainSkills = updatedSkills.filter(s => s.domain === domain);
+        const domainXp = domainSkills.reduce((sum, s) => sum + s.xp, 0) + amount;
         const domainRank = calculateRankFromXp(domainXp);
         
         set((state) => ({
@@ -214,7 +236,7 @@ export const useProdigyStore = create<ProdigyState>()(
               ...q,
               completed: true,
               metrics: {
-                ...q.metrics,
+                startDate: q.metrics?.startDate || new Date(),
                 checkpoints: [
                   ...(q.metrics?.checkpoints || []),
                   {
@@ -222,7 +244,8 @@ export const useProdigyStore = create<ProdigyState>()(
                     description: 'Quest completed',
                     completed: true
                   }
-                ]
+                ],
+                consequences: q.metrics?.consequences
               }
             } : q
           )
@@ -234,7 +257,7 @@ export const useProdigyStore = create<ProdigyState>()(
           // Award XP to the first skill in that domain
           state.addXp(domainSkills[0].id, quest.xpReward);
         }
-      },
+      }
 
       unlockAchievement: (id) => 
         set((state) => ({
@@ -250,10 +273,34 @@ export const useProdigyStore = create<ProdigyState>()(
         const domainSkills = state.skills.filter(s => s.domain === domain);
         const domainXp = domainSkills.reduce((sum, s) => sum + s.xp, 0);
         return calculateRankFromXp(domainXp);
-      }
+      },
+
+      removeSkill: (id) =>
+        set((state) => ({
+          skills: state.skills.filter(skill => skill.id !== id)
+        })),
+
+      removeQuest: (id) =>
+        set((state) => ({
+          quests: state.quests.filter(quest => quest.id !== id)
+        }))
     }),
     {
       name: 'prodigy-protocol-storage',
+      version: 1,
+      migrate: (persistedState: any, version: number) => {
+        if (version === 0) {
+          // Migration logic for version 0 to 1
+          return {
+            ...persistedState,
+            user: {
+              ...persistedState.user,
+              progressHistory: persistedState.user.progressHistory || []
+            }
+          };
+        }
+        return persistedState;
+      }
     }
   )
 );
