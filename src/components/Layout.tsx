@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, User, Award, Dumbbell, Brain, Code, Palette, Menu, X, Briefcase } from 'lucide-react';
+import { Sparkles, User, Award, Dumbbell, Brain, Code, Palette, Menu, X, Briefcase, ShoppingCart } from 'lucide-react';
 import { useProdigyStore } from '../store';
 import { useState } from 'react';
 
@@ -14,49 +14,35 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPage }) => {
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
-  // Safely handle user data
-  const safeUser = {
-    name: user?.name || 'Hunter',
-    title: user?.title || 'Novice Explorer',
-    rank: user?.rank || 'E',
-    totalXp: user?.totalXp || 0,
-    streak: user?.streak || 0
-  };
-
-  const safeDomainRanks = domainRanks || {
-    Physical: 'E',
-    Mental: 'E',
-    Technical: 'E',
-    Creative: 'E'
-  };
   const navItems = [
     { name: 'Dashboard', icon: <Sparkles className="w-5 h-5" />, path: '/' },
     { name: 'Profile', icon: <User className="w-5 h-5" />, path: '/profile' },
     { name: 'Quests', icon: <Award className="w-5 h-5" />, path: '/quests' },
+    { name: 'Shop', icon: <ShoppingCart className="w-5 h-5" />, path: '/shop' },
     { name: 'Professional', icon: <Briefcase className="w-5 h-5" />, path: '/professional' },
     { 
       name: 'Physical', 
       icon: <Dumbbell className="w-5 h-5" />, 
       path: '/domain/physical',
-      rank: safeDomainRanks.Physical
+      rank: domainRanks.Physical
     },
     { 
       name: 'Mental', 
       icon: <Brain className="w-5 h-5" />, 
       path: '/domain/mental',
-      rank: safeDomainRanks.Mental
+      rank: domainRanks.Mental
     },
     { 
       name: 'Technical', 
       icon: <Code className="w-5 h-5" />, 
       path: '/domain/technical',
-      rank: safeDomainRanks.Technical
+      rank: domainRanks.Technical
     },
     { 
       name: 'Creative', 
       icon: <Palette className="w-5 h-5" />, 
       path: '/domain/creative',
-      rank: safeDomainRanks.Creative
+      rank: domainRanks.Creative
     },
   ];
 
@@ -83,10 +69,10 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPage }) => {
             </div>
             <div className="flex flex-col anime-card p-3">
               <span className="text-sm text-gray-400">Welcome back,</span>
-              <span className="text-lg font-semibold sparkle">{safeUser.name}</span>
+              <span className="text-lg font-semibold sparkle">{user.name}</span>
               <div className="flex items-center mt-1">
-                <span className="text-xs bg-indigo-900/50 px-2 py-0.5 rounded mr-2 energy-aura">{safeUser.title}</span>
-                <span className="text-xs bg-purple-900/50 px-2 py-0.5 rounded energy-aura">Rank {safeUser.rank}</span>
+                <span className="text-xs bg-indigo-900/50 px-2 py-0.5 rounded mr-2 energy-aura">{user.title}</span>
+                <span className="text-xs bg-purple-900/50 px-2 py-0.5 rounded energy-aura">Rank {user.rank}</span>
               </div>
             </div>
           </div>
@@ -118,16 +104,16 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPage }) => {
             <div className="flex items-center justify-between anime-card p-3">
               <div className="flex items-center">
                 <div className="w-8 h-8 rounded-full bg-indigo-700/50 flex items-center justify-center glow">
-                  <span className="font-bold">{safeUser.rank}</span>
+                  <span className="font-bold">{user.rank}</span>
                 </div>
                 <div className="ml-2">
                   <div className="text-xs text-gray-400">Total XP</div>
-                  <div className="text-sm font-semibold magical-text">{safeUser.totalXp.toLocaleString()}</div>
+                  <div className="text-sm font-semibold magical-text">{user.totalXp.toLocaleString()}</div>
                 </div>
               </div>
               <div>
                 <div className="text-xs text-gray-400">Streak</div>
-                <div className="text-sm font-semibold text-center magical-text">{safeUser.streak} days</div>
+                <div className="text-sm font-semibold text-center magical-text">{user.streak} days</div>
               </div>
             </div>
           </div>
@@ -185,16 +171,16 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPage }) => {
                 <div className="flex items-center justify-between anime-card p-3">
                   <div className="flex items-center">
                     <div className="w-10 h-10 rounded-full bg-indigo-700/50 flex items-center justify-center glow">
-                      <span className="font-bold">{safeUser.rank}</span>
+                      <span className="font-bold">{user.rank}</span>
                     </div>
                     <div className="ml-2">
                       <div className="text-xs text-gray-400">Total XP</div>
-                      <div className="text-sm font-semibold magical-text">{safeUser.totalXp.toLocaleString()}</div>
+                      <div className="text-sm font-semibold magical-text">{user.totalXp.toLocaleString()}</div>
                     </div>
                   </div>
                   <div>
                     <div className="text-xs text-gray-400">Streak</div>
-                    <div className="text-sm font-semibold text-center magical-text">{safeUser.streak} days</div>
+                    <div className="text-sm font-semibold text-center magical-text">{user.streak} days</div>
                   </div>
                 </div>
               </div>
