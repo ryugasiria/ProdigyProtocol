@@ -126,8 +126,9 @@ const Dashboard: React.FC = () => {
   }, [user.milestones]);
   
   // Get active daily quests
-  const dailyQuests = quests.filter(quest => quest.isDaily && !quest.completed);
-  const completedDailyQuests = quests.filter(quest => quest.isDaily && quest.completed);
+  const allDailyQuests = quests.filter(quest => quest.isDaily);
+  const dailyQuests = allDailyQuests.filter(quest => !quest.completed);
+  const completedDailyQuests = allDailyQuests.filter(quest => quest.completed);
   const regularQuests = quests.filter(quest => !quest.isDaily && !quest.completed).slice(0, 2);
   
   // Get top skills
@@ -154,7 +155,8 @@ const Dashboard: React.FC = () => {
     nextRank === 'SSS' ? 10000 : user.totalXp;
   
   // Calculate daily/weekly/monthly progress
-  const dailyProgress = (completedDailyQuests.length / (dailyQuests.length + completedDailyQuests.length)) * 100 || 0;
+  const totalDailyQuests = allDailyQuests.length;
+  const dailyProgress = totalDailyQuests > 0 ? (completedDailyQuests.length / totalDailyQuests) * 100 : 0;
   const weeklyProgress = Math.min((user.streak / 7) * 100, 100);
   const monthlyProgress = Math.min((user.streak / 30) * 100, 100);
   
@@ -213,7 +215,7 @@ const Dashboard: React.FC = () => {
           <div className="flex items-center">
             <div className="w-12 h-12 rounded-full bg-indigo-900 flex items-center justify-center mr-3 glow">
               <span className="font-bold text-xl">{user.rank}</span>
-            </div>
+                  <div className="text-xs text-gray-400">{completedDailyQuests.length}/{totalDailyQuests}</div>
             <div className="flex-1">
               <div className="text-sm text-gray-400">Next: {nextRank}</div>
               <ProgressBar 
@@ -361,36 +363,88 @@ const Dashboard: React.FC = () => {
       <div className="mb-8">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold flex items-center">
-            <Timer className="w-5 h-5 mr-2 text-yellow-400" />
-            Today's Quests
+            <Timer className="w-5 h-5 mr-2 text-blue-400" />
+            Today's Daily Quests
           </h2>
           <div className="flex items-center space-x-4 text-sm text-gray-400">
-            <span>Completed: {completedDailyQuests.length}</span>
-            <span>Remaining: {dailyQuests.length}</span>
+            <span className="text-green-400">✓ {completedDailyQuests.length}</span>
+            <span className="text-yellow-400">⏳ {dailyQuests.length}</span>
+            <span className="text-gray-300">Total: {totalDailyQuests}</span>
           </div>
         </div>
         
-        {dailyQuests.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {dailyQuests.map(quest => (
-              <QuestCard key={quest.id} quest={quest} />
-            ))}
-          </div>
-        ) : completedDailyQuests.length > 0 ? (
-          <div className="bg-green-900/20 border border-green-700 rounded-lg p-6 text-center">
-            <Award className="w-12 h-12 text-green-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-green-400 mb-2">All Daily Quests Complete!</h3>
-            <p className="text-green-300">Great work! New quests will be available in {timeUntilRefresh}</p>
-            {dailyQuests.length + completedDailyQuests.length > 0 && (
-              <div className="mt-4 text-sm text-green-400">
-                Completionist Bonus: +{Math.floor(completedDailyQuests.reduce((sum, q) => sum + q.coinReward, 0) * 0.2)} coins
+        {totalDailyQuests > 0 ? (
+          <div className="space-y-6">
+            {/* Remaining Quests */}
+            {dailyQuests.length > 0 && (
+              <div>
+                <h3 className="text-md font-medium text-yellow-400 mb-3 flex items-center">
+                  <Clock className="w-4 h-4 mr-2" />
+                  Remaining Quests ({dailyQuests.length})
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {dailyQuests.map(quest => (
+                    <QuestCard key={quest.id} quest={quest} />
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Completed Quests */}
+            {completedDailyQuests.length > 0 && (
+              <div>
+                <h3 className="text-md font-medium text-green-400 mb-3 flex items-center">
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  Completed Today ({completedDailyQuests.length})
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {completedDailyQuests.map(quest => (
+                    <div key={quest.id} className="relative">
+                      <QuestCard quest={quest} />
+                      <div className="absolute inset-0 bg-green-900/20 rounded-lg pointer-events-none"></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* All Daily Quests Completed */}
+            {dailyQuests.length === 0 && completedDailyQuests.length > 0 && (
+              <div className="bg-green-900/20 border border-green-700 rounded-lg p-6 text-center mt-4">
+                <Award className="w-12 h-12 text-green-400 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-green-400 mb-2">All Daily Quests Complete! 🎉</h3>
+                <p className="text-green-300 mb-4">Outstanding work! You've completed all {completedDailyQuests.length} daily quests.</p>
+                <div className="flex items-center justify-center space-x-6 text-sm">
+                  <div className="flex items-center text-green-400">
+                    <Coins className="w-4 h-4 mr-1" />
+                    <span>Completionist Bonus: +{Math.floor(completedDailyQuests.reduce((sum, q) => sum + q.coinReward, 0) * 0.2)} coins</span>
+                  </div>
+                  <div className="flex items-center text-blue-400">
+                    <Timer className="w-4 h-4 mr-1" />
+                    <span>Next refresh: {timeUntilRefresh}</span>
+                  </div>
+                </div>
               </div>
             )}
           </div>
         ) : (
-          <div className="bg-gray-800 rounded-lg p-6 text-center">
+          <div className="bg-gray-800/50 rounded-lg p-8 text-center border border-gray-700">
             <Clock className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-400">New daily quests will be available in {timeUntilRefresh}</p>
+            <h3 className="text-lg font-semibold text-gray-300 mb-2">No Daily Quests Available</h3>
+            <p className="text-gray-400 mb-4">Daily quests refresh automatically every 24 hours</p>
+            <div className="flex items-center justify-center space-x-2 text-sm text-blue-400">
+              <Timer className="w-4 h-4" />
+              <span>Next refresh: {timeUntilRefresh}</span>
+            </div>
+            <div className="mt-4">
+              <a 
+                href="/quests" 
+                className="inline-flex items-center bg-indigo-700 hover:bg-indigo-600 text-white px-4 py-2 rounded transition-colors"
+              >
+                <Award className="w-4 h-4 mr-2" />
+                Create Custom Quests
+              </a>
+            </div>
           </div>
         )}
       </div>
