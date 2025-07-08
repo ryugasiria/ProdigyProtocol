@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, User, Award, Dumbbell, Brain, Code, Palette, Menu, X, Briefcase, ShoppingCart } from 'lucide-react';
+import { Sparkles, User, Award, Dumbbell, Brain, Code, Palette, Menu, X, Briefcase } from 'lucide-react';
 import { useProdigyStore } from '../store';
 import { useState } from 'react';
 
@@ -18,7 +18,6 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPage }) => {
     { name: 'Dashboard', icon: <Sparkles className="w-5 h-5" />, path: '/' },
     { name: 'Profile', icon: <User className="w-5 h-5" />, path: '/profile' },
     { name: 'Quests', icon: <Award className="w-5 h-5" />, path: '/quests' },
-    { name: 'Shop', icon: <ShoppingCart className="w-5 h-5" />, path: '/shop' },
     { name: 'Professional', icon: <Briefcase className="w-5 h-5" />, path: '/professional' },
     { 
       name: 'Physical', 

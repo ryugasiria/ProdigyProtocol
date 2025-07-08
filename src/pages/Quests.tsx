@@ -25,19 +25,13 @@ const Quests: React.FC = () => {
   const handleAddQuest = () => {
     if (!newQuest.title || !newQuest.description) return;
     
-    const getCoinReward = (difficulty: 'Easy' | 'Medium' | 'Hard'): number => {
-      const baseRewards = { Easy: 15, Medium: 35, Hard: 75 };
-      return baseRewards[difficulty];
-    };
-    
     addQuest({
       id: uuidv4(),
       title: newQuest.title,
       description: newQuest.description,
       domain: newQuest.domain as Domain,
-      difficulty: newQuest.difficulty as 'Easy' | 'Medium' | 'Hard',
+      difficulty: newQuest.difficulty as 'Easy' | 'Medium' | 'Hard' | 'Expert',
       xpReward: newQuest.xpReward || 50,
-      coinReward: getCoinReward(newQuest.difficulty as 'Easy' | 'Medium' | 'Hard'),
       completed: false,
     });
     
@@ -166,6 +160,7 @@ const Quests: React.FC = () => {
                 <option value="Easy">Easy</option>
                 <option value="Medium">Medium</option>
                 <option value="Hard">Hard</option>
+                <option value="Expert">Expert</option>
               </select>
             </div>
             
