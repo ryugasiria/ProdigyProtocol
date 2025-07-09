@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, User, Award, Dumbbell, Brain, Code, Palette, Menu, X, Briefcase } from 'lucide-react';
+import { Sparkles, User, Award, Dumbbell, Brain, Code, Palette, Menu, X, Briefcase, ShoppingBag } from 'lucide-react';
 import { useProdigyStore } from '../store';
 import { useState } from 'react';
 
@@ -18,6 +18,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPage }) => {
     { name: 'Dashboard', icon: <Sparkles className="w-5 h-5" />, path: '/' },
     { name: 'Profile', icon: <User className="w-5 h-5" />, path: '/profile' },
     { name: 'Quests', icon: <Award className="w-5 h-5" />, path: '/quests' },
+    { name: 'Shop', icon: <ShoppingBag className="w-5 h-5" />, path: '/shop' },
     { name: 'Professional', icon: <Briefcase className="w-5 h-5" />, path: '/professional' },
     { 
       name: 'Physical', 
@@ -71,7 +72,12 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPage }) => {
               <span className="text-lg font-semibold sparkle">{user.name}</span>
               <div className="flex items-center mt-1">
                 <span className="text-xs bg-indigo-900/50 px-2 py-0.5 rounded mr-2 energy-aura">{user.title}</span>
-                <span className="text-xs bg-purple-900/50 px-2 py-0.5 rounded energy-aura">Rank {user.rank}</span>
+                <span className="text-xs bg-purple-900/50 px-2 py-0.5 rounded energy-aura">Lv.{user.level}</span>
+              </div>
+              <div className="flex items-center mt-2">
+                <span className="text-xs bg-yellow-900/50 px-2 py-0.5 rounded energy-aura">
+                  💰 {user.coins.toLocaleString()}
+                </span>
               </div>
             </div>
           </div>
@@ -112,7 +118,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPage }) => {
               </div>
               <div>
                 <div className="text-xs text-gray-400">Streak</div>
-                <div className="text-sm font-semibold text-center magical-text">{user.streak} days</div>
+                <div className="text-sm font-semibold text-center magical-text">{user.streak.current} days</div>
               </div>
             </div>
           </div>
@@ -137,7 +143,12 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPage }) => {
                   <span className="text-lg font-semibold sparkle">{user.name}</span>
                   <div className="flex items-center mt-1">
                     <span className="text-xs bg-indigo-900/50 px-2 py-0.5 rounded mr-2 energy-aura">{user.title}</span>
-                    <span className="text-xs bg-purple-900/50 px-2 py-0.5 rounded energy-aura">Rank {user.rank}</span>
+                    <span className="text-xs bg-purple-900/50 px-2 py-0.5 rounded energy-aura">Lv.{user.level}</span>
+                  </div>
+                  <div className="flex items-center mt-2">
+                    <span className="text-xs bg-yellow-900/50 px-2 py-0.5 rounded energy-aura">
+                      💰 {user.coins.toLocaleString()}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -179,7 +190,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPage }) => {
                   </div>
                   <div>
                     <div className="text-xs text-gray-400">Streak</div>
-                    <div className="text-sm font-semibold text-center magical-text">{user.streak} days</div>
+                    <div className="text-sm font-semibold text-center magical-text">{user.streak.current} days</div>
                   </div>
                 </div>
               </div>
