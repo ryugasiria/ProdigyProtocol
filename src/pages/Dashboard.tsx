@@ -174,11 +174,11 @@ const Dashboard: React.FC = () => {
             <h3 className="font-semibold">Coin Balance</h3>
           </div>
           <div className="flex items-center">
-            <div className="text-2xl font-bold text-yellow-400">{user.coins.toLocaleString()}</div>
+            <div className="text-2xl font-bold text-yellow-400">{(user.coins || 0).toLocaleString()}</div>
             <div className="text-sm text-gray-400 ml-2">coins</div>
           </div>
           <div className="text-xs text-gray-500 mt-2">
-            {user.activeBoosts.length > 0 && (
+            {(user.activeBoosts || []).length > 0 && (
               <span className="text-green-400">Boosts active!</span>
             )}
           </div>
@@ -286,11 +286,11 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Active Boosts */}
-      {user.activeBoosts.length > 0 && (
+      {(user.activeBoosts || []).length > 0 && (
         <div className="mb-8">
           <h2 className="text-xl font-semibold mb-4">Active Boosts</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {user.activeBoosts.map(boost => (
+            {(user.activeBoosts || []).map(boost => (
               <div key={boost.id} className="bg-gradient-to-r from-purple-900/50 to-blue-900/50 rounded-lg p-4 border border-purple-500/30">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-semibold text-purple-300">{boost.name}</h3>
