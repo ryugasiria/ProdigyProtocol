@@ -1,5 +1,7 @@
 import React, { useEffect } from 'react';
+import { motion } from 'framer-motion';
 import Layout from '../components/Layout';
+import AnimatedCard from '../components/AnimatedCard';
 import { useProdigyStore } from '../store';
 import ProgressBar from '../components/ProgressBar';
 import EnhancedQuestCard from '../components/EnhancedQuestCard';
@@ -139,14 +141,24 @@ const Dashboard: React.FC = () => {
   
   return (
     <Layout currentPage="dashboard">
-      <div className="mb-6">
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="mb-6"
+      >
         <h1 className="text-2xl font-['Orbitron'] font-bold mb-1">HUNTER DASHBOARD</h1>
         <p className="text-gray-400">Your journey to mastery continues, Hunter.</p>
-      </div>
+      </motion.div>
       
       {/* Enhanced Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <div className="bg-gray-800 rounded-lg p-4 border border-indigo-900">
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2, staggerChildren: 0.1 }}
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
+      >
+        <AnimatedCard delay={0.1} className="bg-gray-800 rounded-lg p-4 border border-indigo-900">
           <div className="flex items-center mb-2">
             <Award className="w-5 h-5 text-indigo-400 mr-2" />
             <h3 className="font-semibold">Current Rank</h3>
@@ -166,11 +178,16 @@ const Dashboard: React.FC = () => {
               />
             </div>
           </div>
-        </div>
+        </AnimatedCard>
         
-        <div className="bg-gray-800 rounded-lg p-4 border border-yellow-900">
+        <AnimatedCard delay={0.2} className="bg-gray-800 rounded-lg p-4 border border-yellow-900">
           <div className="flex items-center mb-2">
-            <Coins className="w-5 h-5 text-yellow-400 mr-2 animate-spin" />
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+            >
+              <Coins className="w-5 h-5 text-yellow-400 mr-2" />
+            </motion.div>
             <h3 className="font-semibold">Coin Balance</h3>
           </div>
           <div className="flex items-center">
@@ -182,9 +199,9 @@ const Dashboard: React.FC = () => {
               <span className="text-green-400">Boosts active!</span>
             )}
           </div>
-        </div>
+        </AnimatedCard>
         
-        <div className="bg-gray-800 rounded-lg p-4 border border-green-900">
+        <AnimatedCard delay={0.3} className="bg-gray-800 rounded-lg p-4 border border-green-900">
           <div className="flex items-center mb-2">
             <Target className="w-5 h-5 text-green-400 mr-2" />
             <h3 className="font-semibold">Daily Progress</h3>
@@ -202,9 +219,9 @@ const Dashboard: React.FC = () => {
             showText={false}
             height={4}
           />
-        </div>
+        </AnimatedCard>
         
-        <div className="bg-gray-800 rounded-lg p-4 border border-blue-900">
+        <AnimatedCard delay={0.4} className="bg-gray-800 rounded-lg p-4 border border-blue-900">
           <div className="flex items-center mb-2">
             <Clock className="w-5 h-5 text-blue-400 mr-2" />
             <h3 className="font-semibold">Quest Reset</h3>
@@ -217,29 +234,61 @@ const Dashboard: React.FC = () => {
           <div className="text-xs text-gray-500 mt-2">
             Until new daily quests
           </div>
-        </div>
-      </div>
+        </AnimatedCard>
+      </motion.div>
 
       {/* Progress Overview */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+        className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8"
+      >
         {/* Streak Counter */}
-        <StreakCounter streak={user.streak} />
+        <AnimatedCard delay={0.6}>
+          <StreakCounter streak={user.streak} />
+        </AnimatedCard>
         
         {/* Progress Rings */}
-        <div className="bg-gray-800 rounded-lg p-4 border border-indigo-900/30">
+        <AnimatedCard delay={0.7} className="bg-gray-800 rounded-lg p-4 border border-indigo-900/30">
           <h3 className="text-lg font-semibold mb-4 text-center">Quest Progress</h3>
           <div className="flex justify-center">
             <ProgressRings rings={user.progressRings} size={180} />
           </div>
-        </div>
-      </div>
+        </AnimatedCard>
+      </motion.div>
 
       {/* Domain Progress Charts */}
-      <div className="mb-8">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.8 }}
+        className="mb-8"
+      >
         <h2 className="text-xl font-semibold mb-4">Domain Mastery</h2>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <motion.div 
+          className="grid grid-cols-2 lg:grid-cols-4 gap-4"
+          variants={{
+            hidden: { opacity: 0 },
+            show: {
+              opacity: 1,
+              transition: {
+                staggerChildren: 0.1
+              }
+            }
+          }}
+          initial="hidden"
+          animate="show"
+        >
           {Object.entries(domainProgressData).map(([domain, progress]) => (
-            <div key={domain} className="bg-gray-800 rounded-lg p-4 border border-indigo-900/30">
+            <motion.div
+              key={domain}
+              variants={{
+                hidden: { opacity: 0, scale: 0.8 },
+                show: { opacity: 1, scale: 1 }
+              }}
+            >
+              <AnimatedCard className="bg-gray-800 rounded-lg p-4 border border-indigo-900/30">
               <h3 className="text-sm font-medium text-center mb-3">{domain}</h3>
               <div className="flex justify-center">
                 <RadialProgressChart
@@ -255,13 +304,19 @@ const Dashboard: React.FC = () => {
                   {progress.completedQuests}/{progress.totalQuests} quests
                 </div>
               </div>
-            </div>
+              </AnimatedCard>
+            </motion.div>
           ))}
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
       
       {/* Today's Active Quests */}
-      <div className="mb-8">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.0 }}
+        className="mb-8"
+      >
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Today's Quests</h2>
           <div className="flex items-center text-sm text-gray-400">
@@ -271,30 +326,81 @@ const Dashboard: React.FC = () => {
         </div>
         
         {todayQuests.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <motion.div 
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+            variants={{
+              hidden: { opacity: 0 },
+              show: {
+                opacity: 1,
+                transition: {
+                  staggerChildren: 0.1
+                }
+              }
+            }}
+            initial="hidden"
+            animate="show"
+          >
             {todayQuests.map(quest => (
-              <EnhancedQuestCard key={quest.id} quest={quest} />
+              <motion.div
+                key={quest.id}
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  show: { opacity: 1, y: 0 }
+                }}
+              >
+                <EnhancedQuestCard quest={quest} />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         ) : (
-          <div className="bg-gray-800 rounded-lg p-6 text-center border border-green-900/30">
+          <AnimatedCard className="bg-gray-800 rounded-lg p-6 text-center border border-green-900/30">
             <Award className="w-12 h-12 text-green-400 mx-auto mb-4" />
             <p className="text-green-400 font-medium mb-2">All daily quests completed!</p>
             <p className="text-gray-400 text-sm">Great work! New quests will be available tomorrow.</p>
-          </div>
+          </AnimatedCard>
         )}
-      </div>
+      </motion.div>
 
       {/* Active Boosts */}
       {(user.activeBoosts || []).length > 0 && (
-        <div className="mb-8">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.2 }}
+          className="mb-8"
+        >
           <h2 className="text-xl font-semibold mb-4">Active Boosts</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <motion.div 
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+            variants={{
+              hidden: { opacity: 0 },
+              show: {
+                opacity: 1,
+                transition: {
+                  staggerChildren: 0.1
+                }
+              }
+            }}
+            initial="hidden"
+            animate="show"
+          >
             {(user.activeBoosts || []).map(boost => (
-              <div key={boost.id} className="bg-gradient-to-r from-purple-900/50 to-blue-900/50 rounded-lg p-4 border border-purple-500/30">
+              <motion.div
+                key={boost.id}
+                variants={{
+                  hidden: { opacity: 0, scale: 0.8 },
+                  show: { opacity: 1, scale: 1 }
+                }}
+              >
+                <AnimatedCard className="bg-gradient-to-r from-purple-900/50 to-blue-900/50 rounded-lg p-4 border border-purple-500/30">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-semibold text-purple-300">{boost.name}</h3>
-                  <Zap className="w-5 h-5 text-purple-400" />
+                  <motion.div
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 1, repeat: Infinity }}
+                  >
+                    <Zap className="w-5 h-5 text-purple-400" />
+                  </motion.div>
                 </div>
                 <p className="text-sm text-gray-300 mb-2">{boost.description}</p>
                 {boost.expiresAt && (
@@ -302,25 +408,58 @@ const Dashboard: React.FC = () => {
                     Expires: {new Date(boost.expiresAt).toLocaleString()}
                   </div>
                 )}
-              </div>
+                </AnimatedCard>
+              </motion.div>
             ))}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
       
       {/* Skills Overview */}
-      <div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.4 }}
+      >
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Your Skills</h2>
-          <a href="/skills" className="text-indigo-400 text-sm hover:underline">View All</a>
+          <motion.a 
+            href="/skills" 
+            className="text-indigo-400 text-sm hover:underline"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            View All
+          </motion.a>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+          variants={{
+            hidden: { opacity: 0 },
+            show: {
+              opacity: 1,
+              transition: {
+                staggerChildren: 0.1
+              }
+            }
+          }}
+          initial="hidden"
+          animate="show"
+        >
           {topSkills.map(skill => (
-            <SkillCard key={skill.id} skill={skill} />
+            <motion.div
+              key={skill.id}
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                show: { opacity: 1, y: 0 }
+              }}
+            >
+              <SkillCard skill={skill} />
+            </motion.div>
           ))}
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </Layout>
   );
 };
