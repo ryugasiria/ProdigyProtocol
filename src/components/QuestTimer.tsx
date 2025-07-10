@@ -18,7 +18,7 @@ const QuestTimer: React.FC<QuestTimerProps> = ({ deadline, onExpire, className =
   useEffect(() => {
     const updateTimer = () => {
       const now = new Date().getTime();
-      const deadlineTime = deadline.getTime();
+      const deadlineTime = new Date(deadline).getTime();
       const difference = deadlineTime - now;
 
       if (difference <= 0) {
