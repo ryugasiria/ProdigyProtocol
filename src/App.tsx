@@ -1,10 +1,6 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useProdigyStore } from './store';
-import { useScrollPosition } from './hooks/useScrollPosition';
-import PageTransition from './components/PageTransition';
-import LoadingSpinner from './components/LoadingSpinner';
-import ErrorBoundary from './components/ErrorBoundary';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Quests from './pages/Quests';
@@ -15,23 +11,24 @@ import AuthPage from './pages/AuthPage';
 import AuthCallback from './pages/AuthCallback';
 import ProtectedRoute from './components/ProtectedRoute';
 
-// App content wrapper to handle scroll position
-const AppContent: React.FC = () => {
+function App() {
   const { initializeAuth, authLoading } = useProdigyStore();
-  const location = useLocation();
-  useScrollPosition();
 
   useEffect(() => {
     initializeAuth();
   }, [initializeAuth]);
 
   if (authLoading) {
-    return <LoadingSpinner fullScreen message="Initializing Prodigy Protocol" />;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-900/20 to-gray-900 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-400"></div>
+      </div>
+    );
   }
 
   return (
-    <PageTransition>
-      <Routes location={location}>
+    <Router>
+      <Routes>
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route 
@@ -84,17 +81,7 @@ const AppContent: React.FC = () => {
         />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </PageTransition>
-  );
-};
-
-function App() {
-  return (
-    <ErrorBoundary>
-      <Router>
-        <AppContent />
-      </Router>
-    </ErrorBoundary>
+    </Router>
   );
 }
 
