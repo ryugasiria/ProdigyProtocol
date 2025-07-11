@@ -1,7 +1,6 @@
 import React from 'react';
 import { Sparkles, User, Award, Dumbbell, Brain, Code, Palette, Menu, X, Briefcase, ShoppingBag } from 'lucide-react';
 import { useProdigyStore } from '../store';
-import UserMenu from './UserMenu';
 import { useState } from 'react';
 
 type LayoutProps = {
@@ -11,7 +10,7 @@ type LayoutProps = {
 
 const Layout: React.FC<LayoutProps> = ({ children, currentPage }) => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { user, domainRanks, authUser, isAuthenticated } = useProdigyStore();
+  const { user, domainRanks } = useProdigyStore();
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
@@ -68,36 +67,19 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPage }) => {
               <Sparkles className="w-6 h-6 text-indigo-400 animate-pulse-glow" />
               <h1 className="text-xl font-['Orbitron'] font-bold magical-text ml-2">PRODIGY</h1>
             </div>
-            
-            {isAuthenticated ? (
-              <div className="flex flex-col anime-card p-3">
-                <span className="text-sm text-gray-400">Welcome back,</span>
-                <span className="text-lg font-semibold sparkle">{authUser?.profile?.full_name || user.name}</span>
-                <div className="flex items-center mt-1">
-                  <span className="text-xs bg-indigo-900/50 px-2 py-0.5 rounded mr-2 energy-aura">{user.title}</span>
-                  <span className="text-xs bg-purple-900/50 px-2 py-0.5 rounded energy-aura">Lv.{user.level}</span>
-                </div>
-                <div className="flex items-center mt-2">
-                  <span className="text-xs bg-yellow-900/50 px-2 py-0.5 rounded energy-aura">
-                    💰 {user.coins.toLocaleString()}
-                  </span>
-                </div>
+            <div className="flex flex-col anime-card p-3">
+              <span className="text-sm text-gray-400">Welcome back,</span>
+              <span className="text-lg font-semibold sparkle">{user.name}</span>
+              <div className="flex items-center mt-1">
+                <span className="text-xs bg-indigo-900/50 px-2 py-0.5 rounded mr-2 energy-aura">{user.title}</span>
+                <span className="text-xs bg-purple-900/50 px-2 py-0.5 rounded energy-aura">Lv.{user.level}</span>
               </div>
-            ) : (
-              <div className="flex flex-col anime-card p-3">
-                <span className="text-sm text-gray-400">Guest Mode</span>
-                <span className="text-lg font-semibold sparkle">Explorer</span>
-                <div className="flex items-center mt-1">
-                  <span className="text-xs bg-gray-900/50 px-2 py-0.5 rounded mr-2 energy-aura">Limited Access</span>
-                </div>
-                <a 
-                  href="/auth" 
-                  className="text-xs bg-indigo-900/50 px-2 py-0.5 rounded energy-aura mt-2 text-center hover:bg-indigo-800/50 transition-colors"
-                >
-                  Sign In for Full Access
-                </a>
+              <div className="flex items-center mt-2">
+                <span className="text-xs bg-yellow-900/50 px-2 py-0.5 rounded energy-aura">
+                  💰 {user.coins.toLocaleString()}
+                </span>
               </div>
-            )}
+            </div>
           </div>
           <nav className="flex-1 p-4">
             <ul className="space-y-2">
@@ -124,25 +106,21 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPage }) => {
             </ul>
           </nav>
           <div className="p-4 border-t border-indigo-900/50">
-            {isAuthenticated ? (
-              <div className="flex items-center justify-between anime-card p-3">
-                <div className="flex items-center">
-                  <div className="w-8 h-8 rounded-full bg-indigo-700/50 flex items-center justify-center glow">
-                    <span className="font-bold">{user.rank}</span>
-                  </div>
-                  <div className="ml-2">
-                    <div className="text-xs text-gray-400">Total XP</div>
-                    <div className="text-sm font-semibold magical-text">{user.totalXp.toLocaleString()}</div>
-                  </div>
+            <div className="flex items-center justify-between anime-card p-3">
+              <div className="flex items-center">
+                <div className="w-8 h-8 rounded-full bg-indigo-700/50 flex items-center justify-center glow">
+                  <span className="font-bold">{user.rank}</span>
                 </div>
-                <div>
-                  <div className="text-xs text-gray-400">Streak</div>
-                  <div className="text-sm font-semibold text-center magical-text">{user.streak.current} days</div>
+                <div className="ml-2">
+                  <div className="text-xs text-gray-400">Total XP</div>
+                  <div className="text-sm font-semibold magical-text">{user.totalXp.toLocaleString()}</div>
                 </div>
               </div>
-            ) : (
-              <UserMenu />
-            )}
+              <div>
+                <div className="text-xs text-gray-400">Streak</div>
+                <div className="text-sm font-semibold text-center magical-text">{user.streak.current} days</div>
+              </div>
+            </div>
           </div>
         </aside>
 
@@ -159,39 +137,21 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPage }) => {
                   <X className="w-6 h-6" />
                 </button>
               </div>
-              
-              {isAuthenticated ? (
-                <div className="p-4 border-b border-indigo-900/50">
-                  <div className="flex flex-col anime-card p-3">
-                    <span className="text-sm text-gray-400">Welcome back,</span>
-                    <span className="text-lg font-semibold sparkle">{authUser?.profile?.full_name || user.name}</span>
-                    <div className="flex items-center mt-1">
-                      <span className="text-xs bg-indigo-900/50 px-2 py-0.5 rounded mr-2 energy-aura">{user.title}</span>
-                      <span className="text-xs bg-purple-900/50 px-2 py-0.5 rounded energy-aura">Lv.{user.level}</span>
-                    </div>
-                    <div className="flex items-center mt-2">
-                      <span className="text-xs bg-yellow-900/50 px-2 py-0.5 rounded energy-aura">
-                        💰 {user.coins.toLocaleString()}
-                      </span>
-                    </div>
+              <div className="p-4 border-b border-indigo-900/50">
+                <div className="flex flex-col anime-card p-3">
+                  <span className="text-sm text-gray-400">Welcome back,</span>
+                  <span className="text-lg font-semibold sparkle">{user.name}</span>
+                  <div className="flex items-center mt-1">
+                    <span className="text-xs bg-indigo-900/50 px-2 py-0.5 rounded mr-2 energy-aura">{user.title}</span>
+                    <span className="text-xs bg-purple-900/50 px-2 py-0.5 rounded energy-aura">Lv.{user.level}</span>
+                  </div>
+                  <div className="flex items-center mt-2">
+                    <span className="text-xs bg-yellow-900/50 px-2 py-0.5 rounded energy-aura">
+                      💰 {user.coins.toLocaleString()}
+                    </span>
                   </div>
                 </div>
-              ) : (
-                <div className="p-4 border-b border-indigo-900/50">
-                  <div className="flex flex-col anime-card p-3">
-                    <span className="text-sm text-gray-400">Guest Mode</span>
-                    <span className="text-lg font-semibold sparkle">Explorer</span>
-                    <a 
-                      href="/auth" 
-                      className="text-xs bg-indigo-900/50 px-2 py-0.5 rounded energy-aura mt-2 text-center hover:bg-indigo-800/50 transition-colors"
-                      onClick={toggleMenu}
-                    >
-                      Sign In for Full Access
-                    </a>
-                  </div>
-                </div>
-              )}
-              
+              </div>
               <nav className="flex-1 p-4 overflow-y-auto">
                 <ul className="space-y-4">
                   {navItems.map((item) => (
@@ -218,25 +178,21 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPage }) => {
                 </ul>
               </nav>
               <div className="p-4 border-t border-indigo-900/50">
-                {isAuthenticated ? (
-                  <div className="flex items-center justify-between anime-card p-3">
-                    <div className="flex items-center">
-                      <div className="w-10 h-10 rounded-full bg-indigo-700/50 flex items-center justify-center glow">
-                        <span className="font-bold">{user.rank}</span>
-                      </div>
-                      <div className="ml-2">
-                        <div className="text-xs text-gray-400">Total XP</div>
-                        <div className="text-sm font-semibold magical-text">{user.totalXp.toLocaleString()}</div>
-                      </div>
+                <div className="flex items-center justify-between anime-card p-3">
+                  <div className="flex items-center">
+                    <div className="w-10 h-10 rounded-full bg-indigo-700/50 flex items-center justify-center glow">
+                      <span className="font-bold">{user.rank}</span>
                     </div>
-                    <div>
-                      <div className="text-xs text-gray-400">Streak</div>
-                      <div className="text-sm font-semibold text-center magical-text">{user.streak.current} days</div>
+                    <div className="ml-2">
+                      <div className="text-xs text-gray-400">Total XP</div>
+                      <div className="text-sm font-semibold magical-text">{user.totalXp.toLocaleString()}</div>
                     </div>
                   </div>
-                ) : (
-                  <UserMenu />
-                )}
+                  <div>
+                    <div className="text-xs text-gray-400">Streak</div>
+                    <div className="text-sm font-semibold text-center magical-text">{user.streak.current} days</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

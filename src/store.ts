@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { AuthUser, setupAuthListener } from './lib/auth';
 import {
   Achievement,
   Domain,
@@ -26,9 +25,6 @@ import {
 
 interface ProdigyState {
   user: UserProfile;
-  authUser: AuthUser | null;
-  isAuthenticated: boolean;
-  authLoading: boolean;
   skills: Skill[];
   quests: Quest[];
   questChains: QuestChain[];
@@ -38,9 +34,6 @@ interface ProdigyState {
   
   // Actions
   updateUser: (user: Partial<UserProfile>) => void;
-  setAuthUser: (user: AuthUser | null) => void;
-  clearAuth: () => void;
-  initializeAuth: () => void;
   updatePersonalProfile: (profile: PersonalProfile) => void;
   updateHealthMetrics: (metrics: HealthMetrics) => void;
   updateProfessionalGoals: (goals: ProfessionalGoals) => void;
@@ -267,9 +260,6 @@ export const useProdigyStore = create<ProdigyState>()(
         badges: [],
         progressHistory: [],
       },
-      authUser: null,
-      isAuthenticated: false,
-      authLoading: true,
       skills: [],
       quests: [],
       questChains: [],
@@ -280,36 +270,6 @@ export const useProdigyStore = create<ProdigyState>()(
         Mental: 'E',
         Technical: 'E',
         Creative: 'E',
-      },
-
-      setAuthUser: (authUser) => {
-        set({ 
-          authUser, 
-          isAuthenticated: !!authUser && authUser.id !== 'guest',
-          authLoading: false 
-        });
-        
-        // Update legacy user object for backward compatibility
-        if (authUser?.profile) {
-          get().updateUser({
-            name: authUser.profile.full_name || authUser.email?.split('@')[0] || 'User'
-          });
-        }
-      },
-
-      clearAuth: () => {
-        set({ 
-          authUser: null, 
-          isAuthenticated: false,
-          authLoading: false 
-        });
-      },
-
-      initializeAuth: () => {
-        // Set up auth state listener
-        setupAuthListener((authState) => {
-          get().setAuthUser(authState.user);
-        });
       },
 
       initializeShop: () => {
